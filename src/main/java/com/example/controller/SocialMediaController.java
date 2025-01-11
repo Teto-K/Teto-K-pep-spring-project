@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -30,17 +31,19 @@ public class SocialMediaController {
 
     
     @PostMapping("/register")
-    public void postAccountHandler(@RequestBody Account acc) {
-
+    public ResponseEntity<Account> postAccountHandler(@RequestBody Account acc) {
+        
+        return ResponseEntity.status(200).body(acc);
     }
 
     @PostMapping("/login")
-    private void postLoginHandler(@RequestBody Account acc) {
-
+    private ResponseEntity<Account> postLoginHandler(@RequestBody Account acc) {
+        accountService.verifyLogin(acc);
+        return ResponseEntity.status(200).body(acc);
     }
 
     @PostMapping("/messages")
-    private void postMessageHandler(@RequestBody Account acc) {
+    private ResponseEntity<Message> postMessageHandler(@RequestBody Message message) {
         
     }
 

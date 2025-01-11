@@ -20,12 +20,16 @@ public class AccountService {
     }
 
     public Account createAccount(Account account) {
-
-        return null;
+        accountList.add(account);
+        return account;
     }
 
     public Account verifyLogin(Account account) {
         
         return null;
+    }
+
+    public List<Account> getAccountList() {
+        return accountList;
     }
 }
