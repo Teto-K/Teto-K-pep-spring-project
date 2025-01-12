@@ -9,10 +9,9 @@ import java.util.Optional;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long>{
-    Message createMessage(Message message);
-    List<Message> findAllMessages();
-    Message findMessageById(int messageId);
-    Optional<Message> deleteMessageById(int messageId);
-    Message updateMessageById(int messageId, Message message);
-    List<Message> findAllMessagesByAccountId(int accountId);
+    Message save(Message message);
+    List<Message> findAll();
+    Message findByMessageId(int messageId);
+    Optional<Message> deleteByMessageId(int messageId);
+    List<Message> findAllByPostedBy(int accountId);
 }

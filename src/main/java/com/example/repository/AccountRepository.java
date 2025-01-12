@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long>{
-    Account createAccount(Account account);
-    Account findAccountByUsernameAndPassword(String username, String password);
+    Account save(Account account);
+    Account findByUsernameAndPassword(String username, String password);
 }

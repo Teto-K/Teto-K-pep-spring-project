@@ -6,22 +6,22 @@ import com.example.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MessageService {
     
-    private final MessageRepository messageRepository;
-
     @Autowired
+    private MessageRepository messageRepository;
+
+    /*@Autowired
     public MessageService(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
-    }
+    }*/
 
     public Message createMessage(Message message) {
         String txt = message.getMessageText();
         if(txt != "" && txt != null && txt.length() <= 255) {
-            messageRepository.createMessage(message);
+            messageRepository.save(message);
         } 
         return null;
     }
@@ -31,25 +31,28 @@ public class MessageService {
     }
 
     public Message getAMessage(int id) {
-        return messageRepository.findMessageById(id);
+        return messageRepository.findByMessageId(id);
     }
 
-    public Optional<Message>deleteMessage(int id) {
-        return messageRepository.deleteMessageById(id);
+    public int deleteMessage(int id) {
+        if(messageRepository.deleteByMessageId(id) != null) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
-    public Message updateMessage(int id, Message message) {
-        String txt = message.getMessageText();
-        if(txt != "" && txt != null && txt.length() <= 255) {
-            messageRepository.updateMessageById(id, message);
+    public int updateMessage(int id, String message_text) {
+        if(message_text != "" && message_text != null && message_text.length() <= 255) {
+            Message updMessage = messageRepository.findByMessageId(id);
+            updMessage.setMessageText(message_text);
+            messageRepository.save(updMessage);
+            return 1;
         } 
-        return null;
+        return 0;
     }
 
     public List<Message> getAllMessagesById(int accId) {
-        return messageRepository.findAllMessagesByAccountId(accId);
+        return messageRepository.findAllByPostedBy(accId);
     }
-
-
-
 }

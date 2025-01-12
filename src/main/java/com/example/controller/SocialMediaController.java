@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import com.example.entity.*;
 import com.example.service.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,13 +18,12 @@ import java.util.List;
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
 @RestController
-//@RequestMapping("8080")
 public class SocialMediaController {
 
     private AccountService accountService;
     private MessageService messageService;
 
-    
+    @Autowired
     public SocialMediaController(AccountService accountService, MessageService messageService){
         this.accountService = accountService;
         this.messageService = messageService;
@@ -47,40 +46,53 @@ public class SocialMediaController {
 
     @PostMapping("/login")
     private ResponseEntity<Account> postLoginHandler(@RequestBody Account acc) {
-        accountService.verifyLogin(acc);
+        Account verifiedAccount = accountService.verifyLogin(acc);
+        if(verifiedAccount != null) {
         return ResponseEntity.status(200).body(acc);
+        } else {
+            return ResponseEntity.status(401).body(acc);
+        }
     }
 
     @PostMapping("/messages")
     private ResponseEntity<Message> postMessageHandler(@RequestBody Message message) {
-        
-        return ResponseEntity.status(200).body(message);
+        Message createdMessage = messageService.createMessage(message);
+        if(createdMessage != null) {
+            return ResponseEntity.status(200).body(message);
+        } else {
+            return ResponseEntity.status(400).body(message);
+        }
     }
 
     @GetMapping("/messages")
-    private void getAllMessagesHandler(@RequestBody Account acc) {
-
+    private ResponseEntity<List<Message>> getAllMessagesHandler(@RequestBody Account acc) {
+        return ResponseEntity.status(200).body(messageService.getAllMessages());
     }
 
-    @GetMapping("/messages")
-    private ResponseEntity<Message> getAMessageHandler(@RequestBody int messageId) {
+    @GetMapping("/messages/{messageId}")
+    private ResponseEntity<Message> getAMessageHandler(@PathVariable int messageId) {
         Message message = messageService.getAMessage(messageId);
         return ResponseEntity.status(200).body(message);
     }
 
     @DeleteMapping("/messages/{messageId}")
-    private void deleteMessageHandler(@PathVariable int messageId) {
-
+    private ResponseEntity<Integer> deleteMessageHandler(@PathVariable int messageId) {
+        return ResponseEntity.status(200).body(messageService.deleteMessage(messageId));
     }
     
     @PatchMapping("/messages/{messageId}")
-    private void patchMessageHandler(@PathVariable int messageId) {
-
+    private ResponseEntity<Integer> patchMessageHandler(@PathVariable int messageId, @RequestBody String message_text) {
+        int updatedMessage = messageService.updateMessage(messageId, message_text);
+        if(updatedMessage != 0) {
+            return ResponseEntity.status(200).body(1);
+        } else {
+            return ResponseEntity.status(400).body(0);
+        }
     }
 
     @GetMapping("/accounts/{accountId}/messages")
-    public List<Message> getAllMessages(@PathVariable int accountId) {
-        return null;
+    public ResponseEntity<List<Message>> getAllMessages(@PathVariable int accountId) {
+        return ResponseEntity.status(200).body(messageService.getAllMessagesById(accountId));
     }
 
     
