@@ -1,52 +1,53 @@
 package com.example.service;
 
 import com.example.entity.Message;
+import com.example.repository.MessageRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MessageService {
     
-    private List<Message> messageLit = new ArrayList<>();
+    private final MessageRepository messageRepository;
 
-    private AccountService accountService;
-    /*
     @Autowired
-    public MessageService(AccountService accountService) {
-        this.accountService = accountService;
-    }*/
+    public MessageService(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
+    }
 
     public Message createMessage(Message message) {
-        
+        String txt = message.getMessageText();
+        if(txt != "" && txt != null && txt.length() <= 255) {
+            messageRepository.createMessage(message);
+        } 
         return null;
     }
 
     public List<Message> getAllMessages() {
-
-        return null;
+        return messageRepository.findAll();
     }
 
     public Message getAMessage(int id) {
-
-        return null;
+        return messageRepository.findMessageById(id);
     }
 
-    public Message deleteMessage(int id) {
-
-        return null;
+    public Optional<Message>deleteMessage(int id) {
+        return messageRepository.deleteMessageById(id);
     }
 
     public Message updateMessage(int id, Message message) {
-
+        String txt = message.getMessageText();
+        if(txt != "" && txt != null && txt.length() <= 255) {
+            messageRepository.updateMessageById(id, message);
+        } 
         return null;
     }
 
     public List<Message> getAllMessagesById(int accId) {
-
-        return null;
+        return messageRepository.findAllMessagesByAccountId(accId);
     }
 
 

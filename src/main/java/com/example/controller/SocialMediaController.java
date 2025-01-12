@@ -18,22 +18,31 @@ import java.util.List;
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
 @RestController
-@RequestMapping("8080")
+//@RequestMapping("8080")
 public class SocialMediaController {
 
-    AccountService accountService;
-    MessageService messageService;
+    private AccountService accountService;
+    private MessageService messageService;
 
-    public SocialMediaController(){
-        this.messageService = new MessageService();
-        this.accountService = new AccountService(messageService);
+    
+    public SocialMediaController(AccountService accountService, MessageService messageService){
+        this.accountService = accountService;
+        this.messageService = messageService;
     }
 
     
     @PostMapping("/register")
     public ResponseEntity<Account> postAccountHandler(@RequestBody Account acc) {
-        
-        return ResponseEntity.status(200).body(acc);
+        if(accountService.getAccountList().contains(acc)) {
+            return ResponseEntity.status(409).body(acc);
+        } else {
+            Account addedAccount = accountService.createAccount(acc);
+            if(addedAccount != null) {
+                return ResponseEntity.status(200).body(acc);
+            } else {
+                return ResponseEntity.status(400).body(acc);
+            }
+        }
     }
 
     @PostMapping("/login")
@@ -45,6 +54,7 @@ public class SocialMediaController {
     @PostMapping("/messages")
     private ResponseEntity<Message> postMessageHandler(@RequestBody Message message) {
         
+        return ResponseEntity.status(200).body(message);
     }
 
     @GetMapping("/messages")
@@ -53,8 +63,9 @@ public class SocialMediaController {
     }
 
     @GetMapping("/messages")
-    private void getAMessageHandler(@RequestBody Account acc) {
-    
+    private ResponseEntity<Message> getAMessageHandler(@RequestBody int messageId) {
+        Message message = messageService.getAMessage(messageId);
+        return ResponseEntity.status(200).body(message);
     }
 
     @DeleteMapping("/messages/{messageId}")
