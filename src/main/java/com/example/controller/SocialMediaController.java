@@ -29,18 +29,16 @@ public class SocialMediaController {
         this.messageService = messageService;
     }
 
-    
     @PostMapping("/register")
     public ResponseEntity<Account> postAccountHandler(@RequestBody Account acc) {
-        if(accountService.getAccountList().contains(acc)) {
+        if(accountService.duplicateUsernameTest(acc.getUsername())) {
             return ResponseEntity.status(409).body(acc);
+        }
+        Account addedAccount = accountService.createAccount(acc);
+        if(addedAccount != null) {
+            return ResponseEntity.status(200).body(addedAccount);
         } else {
-            Account addedAccount = accountService.createAccount(acc);
-            if(addedAccount != null) {
-                return ResponseEntity.status(200).body(acc);
-            } else {
-                return ResponseEntity.status(400).body(acc);
-            }
+            return ResponseEntity.status(400).body(acc);
         }
     }
 
@@ -48,7 +46,7 @@ public class SocialMediaController {
     private ResponseEntity<Account> postLoginHandler(@RequestBody Account acc) {
         Account verifiedAccount = accountService.verifyLogin(acc);
         if(verifiedAccount != null) {
-        return ResponseEntity.status(200).body(acc);
+            return ResponseEntity.status(200).body(verifiedAccount);
         } else {
             return ResponseEntity.status(401).body(acc);
         }
@@ -65,42 +63,35 @@ public class SocialMediaController {
     }
 
     @GetMapping("/messages")
-    private ResponseEntity<List<Message>> getAllMessagesHandler(@RequestBody Account acc) {
+    private ResponseEntity<List<Message>> getAllMessagesHandler() {
         return ResponseEntity.status(200).body(messageService.getAllMessages());
     }
 
     @GetMapping("/messages/{messageId}")
     private ResponseEntity<Message> getAMessageHandler(@PathVariable int messageId) {
-        Message message = messageService.getAMessage(messageId);
-        return ResponseEntity.status(200).body(message);
+        return ResponseEntity.status(200).body(messageService.getAMessage(messageId));
     }
 
     @DeleteMapping("/messages/{messageId}")
     private ResponseEntity<Integer> deleteMessageHandler(@PathVariable int messageId) {
-        return ResponseEntity.status(200).body(messageService.deleteMessage(messageId));
+        if(messageService.deleteMessage(messageId) == 1) {
+            return ResponseEntity.status(200).body(1);
+        } else {
+            return ResponseEntity.status(200).body(null);
+        }
     }
     
     @PatchMapping("/messages/{messageId}")
-    private ResponseEntity<Integer> patchMessageHandler(@PathVariable int messageId, @RequestBody String message_text) {
+    private ResponseEntity<String> patchMessageHandler(@PathVariable int messageId, @RequestBody String message_text) {
         int updatedMessage = messageService.updateMessage(messageId, message_text);
         if(updatedMessage != 0) {
-            return ResponseEntity.status(200).body(1);
-        } else {
-            return ResponseEntity.status(400).body(0);
+            return ResponseEntity.status(200).body("1");
         }
+        return ResponseEntity.status(400).body("");
     }
 
     @GetMapping("/accounts/{accountId}/messages")
     public ResponseEntity<List<Message>> getAllMessages(@PathVariable int accountId) {
         return ResponseEntity.status(200).body(messageService.getAllMessagesById(accountId));
     }
-
-    
-
-
-
-
-
-
-
 }

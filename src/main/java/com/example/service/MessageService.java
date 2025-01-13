@@ -1,27 +1,30 @@
 package com.example.service;
 
 import com.example.entity.Message;
+import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 @Service
 public class MessageService {
     
     @Autowired
     private MessageRepository messageRepository;
-
-    /*@Autowired
-    public MessageService(MessageRepository messageRepository) {
-        this.messageRepository = messageRepository;
-    }*/
+    @Autowired
+    private AccountRepository accountRepository;
 
     public Message createMessage(Message message) {
+        if(accountRepository.findByAccountId(message.getPostedBy()) == null) {
+            return null;
+        }
         String txt = message.getMessageText();
         if(txt != "" && txt != null && txt.length() <= 255) {
-            messageRepository.save(message);
+            return messageRepository.save(message);
         } 
         return null;
     }
@@ -34,8 +37,10 @@ public class MessageService {
         return messageRepository.findByMessageId(id);
     }
 
+    @Transactional
     public int deleteMessage(int id) {
-        if(messageRepository.deleteByMessageId(id) != null) {
+        if(messageRepository.findByMessageId(id) != null) {
+            messageRepository.deleteByMessageId(id);
             return 1;
         } else {
             return 0;
@@ -43,9 +48,13 @@ public class MessageService {
     }
 
     public int updateMessage(int id, String message_text) {
-        if(message_text != "" && message_text != null && message_text.length() <= 255) {
-            Message updMessage = messageRepository.findByMessageId(id);
-            updMessage.setMessageText(message_text);
+        Message updMessage = messageRepository.findByMessageId(id);
+        if(updMessage == null) {
+            return 0;
+        }
+        String fixedText = message_text.subSequence(17, message_text.length() - 2).toString();
+        if(fixedText.length() != 0 && fixedText != null && fixedText.length() <= 255) {
+            updMessage.setMessageText(fixedText);
             messageRepository.save(updMessage);
             return 1;
         } 
